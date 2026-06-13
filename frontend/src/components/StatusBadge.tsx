@@ -19,6 +19,11 @@ const statusStyles: Record<string, string> = {
   TERM_EXPLANATION: "bg-indigo-100 text-indigo-700 border-indigo-200",
   EVIDENCE_SUMMARY: "bg-emerald-100 text-emerald-700 border-emerald-200",
   DOCUMENT_CONTENT_SEARCH: "bg-sky-100 text-sky-700 border-sky-200",
+  GUIDED_PROMPT: "bg-violet-100 text-violet-700 border-violet-200",
+  GUIDED_CONFIRM: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  GUIDED_DECLINE: "bg-slate-100 text-slate-700 border-slate-200",
+  ASK_ME_SCOPE: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  ASK_ME_SCOPE_GUARD: "bg-slate-100 text-slate-700 border-slate-200",
   OUT_OF_SCOPE: "bg-slate-100 text-slate-700 border-slate-200",
 };
 

@@ -36,6 +36,7 @@ app = FastAPI(title="FoundAItion backend", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -162,10 +163,9 @@ def api_rag_status():
 
 @app.post("/api/chat")
 def api_chat(request: ChatRequest):
-    return answer_chat(request.message, get_state())
+    return answer_chat(request.message, get_state(), request.mode or "help")
 
 
 @app.get("/api/evidence/matrix")
 def api_evidence_matrix():
     return build_evidence_matrix(get_state())
-

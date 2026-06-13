@@ -1,7 +1,9 @@
 import type { AppState, RagStatus, UploadDocumentResponse } from "../types";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 import { DisclaimerBox } from "../components/DisclaimerBox";
 import { DocumentCard } from "../components/DocumentCard";
 import { UploadPanel } from "../components/UploadPanel";
+import { toSectionId } from "../utils/sectionIds";
 
 interface DocumentsViewProps {
   state: AppState;
@@ -34,13 +36,11 @@ export function DocumentsView({
 
   return (
     <div className="space-y-6">
-      <section className="panel-section">
-        <p className="muted-label">Dokumentenportfolio</p>
-        <h2 className="mt-2 text-3xl font-semibold text-slate-900">Dokumentenportfolio</h2>
-        <p className="mt-3 text-sm text-slate-600">
-          Die Dokumente im Portfolio dienen der Vorbereitung und Strukturierung. Sie ersetzen keine rechtliche Prüfung.
+      <CollapsibleSection id="documents-overview" label="Dokumentenportfolio" title="Dokumentenportfolio" defaultOpen={false}>
+        <p className="text-sm text-slate-600">
+          Die Dokumente im Portfolio dienen der Vorbereitung und Strukturierung der e.V.-Gründung. Sie ersetzen keine rechtliche Prüfung.
         </p>
-      </section>
+      </CollapsibleSection>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="panel-section">
@@ -59,13 +59,14 @@ export function DocumentsView({
         </div>
       </div>
 
-      <UploadPanel onUpload={onUpload} isUploading={isUploading} lastUploadResult={lastUploadResult} />
+      <CollapsibleSection id="documents-upload" label="Bereich" title="Upload" defaultOpen={false}>
+        <UploadPanel onUpload={onUpload} isUploading={isUploading} lastUploadResult={lastUploadResult} />
+      </CollapsibleSection>
 
-      <section className="panel-section">
+      <CollapsibleSection id="documents-rag-status" label="Bereich" title="RAG-Status" defaultOpen={false}>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="muted-label">RAG-Status</p>
-            <h3 className="mt-2 text-xl font-semibold text-slate-900">Lokaler Dokumentindex</h3>
+            <p className="text-sm text-slate-600">Lokaler Dokumentindex und aktueller Verarbeitungsstand.</p>
           </div>
           <button
             type="button"
@@ -83,14 +84,10 @@ export function DocumentsView({
           <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-400">Keyword-only</p><p className="mt-2 text-2xl font-semibold text-slate-900">{ragStatus?.keyword_only_chunks ?? 0}</p></div>
           <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-400">Ollama</p><p className="mt-2 text-2xl font-semibold text-slate-900">{ragStatus?.ollama_available ? "Ja" : "Nein"}</p></div>
         </div>
-      </section>
+      </CollapsibleSection>
 
       {Object.entries(groupedTemplates).map(([category, templates]) => (
-        <section key={category} className="space-y-4">
-          <div>
-            <p className="muted-label">Kategorie</p>
-            <h3 className="mt-2 text-2xl font-semibold text-slate-900">{category}</h3>
-          </div>
+        <CollapsibleSection key={category} id={toSectionId("documents", category)} label="Kategorie" title={category} defaultOpen={false}>
           <div className="grid gap-4 xl:grid-cols-2">
             {templates.map((template) => (
               <DocumentCard
@@ -103,13 +100,11 @@ export function DocumentsView({
               />
             ))}
           </div>
-        </section>
+        </CollapsibleSection>
       ))}
 
-      <section className="panel-section">
-        <p className="muted-label">Hochgeladene Dokumente</p>
-        <h3 className="mt-2 text-xl font-semibold text-slate-900">Aktuelle Uploads</h3>
-        <div className="mt-6 space-y-4">
+      <CollapsibleSection id="documents-uploads" label="Bereich" title="Aktuelle Uploads" defaultOpen={false}>
+        <div className="space-y-4">
           {state.documents.length > 0 ? (
             state.documents.map((document) => (
               <div key={document.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
@@ -129,10 +124,9 @@ export function DocumentsView({
             <p className="text-sm text-slate-500">Noch keine Dokumente im Pilot vorhanden.</p>
           )}
         </div>
-      </section>
+      </CollapsibleSection>
 
       <DisclaimerBox text={state.disclaimer} />
     </div>
   );
 }
-

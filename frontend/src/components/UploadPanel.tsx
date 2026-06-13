@@ -52,7 +52,7 @@ export function UploadPanel({ onUpload, isUploading, lastUploadResult }: UploadP
             type="button"
             disabled={!selectedFile || isUploading}
             onClick={handleSubmit}
-            className="rounded-2xl bg-brand-violet px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-2xl bg-brand-violet px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-navy disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isUploading ? "Wird verarbeitet..." : "Hochladen"}
           </button>

@@ -77,7 +77,7 @@ def reset_state() -> AppState:
 
 def select_legal_form(legal_form: str) -> AppState:
     _STATE.founder_case.selectedLegalForm = legal_form
-    if legal_form == "UG haftungsbeschränkt":
+    if legal_form:
         for check in _STATE.checks:
             if check.id == "legal_form_path":
                 check.status = "done"

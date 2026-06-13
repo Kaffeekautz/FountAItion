@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.evidence_service import build_evidence_matrix
 from app.knowledge_base import find_knowledge_item
 from app.models import AppState, ChatResponse, ChatSource, DocumentRecord, FoundingCheck
+from app.ollama_service import generate_short_answer
 from app.rag_service import search_rag
 
 
@@ -11,27 +12,69 @@ OUT_OF_SCOPE_ANSWER = (
     "Ich kann im Piloten nur Fragen zu deinen hochgeladenen Dokumenten, offenen Nachweisen, "
     "Checklistenpunkten und Begriffen im FoundAItion-Kontext beantworten. FoundAItion ersetzt keine Rechtsberatung."
 )
+ASK_ME_SCOPE_GUARD = (
+    "Diese Frage kann ich dir im Rahmen meines aktuellen Umfangs noch nicht beantworten. "
+    "Ich nehme sie aber mit, und das FoundAItion-Team wird sich zeitnah um eine passende Antwort kümmern."
+)
 
+YES_TOKENS = {"ja", "ja bitte", "gern", "gerne", "klar", "ok", "okay"}
+NO_TOKENS = {"nein", "nein danke", "später", "nicht jetzt"}
+ASK_ME_SCOPE_TERMS = (
+    "eingetragener verein",
+    "e.v.",
+    " e.v",
+    "gemeinnützigkeit",
+    "rechtsfähigkeit",
+    "rechtsfaehigkeit",
+    "satzung",
+    "vorstand",
+    "mitgliederversammlung",
+    "vereinsregister",
+    "vereinszweck",
+    "mindestmitgliederzahl",
+    "vermögensbindung",
+    "vermoegensbindung",
+    "satzungsmäßigkeit",
+    "satzungsmaessigkeit",
+)
 
 DOCUMENT_TYPE_ALIASES: dict[str, tuple[str, ...]] = {
     "Impressum": ("impressum", "anbieterkennzeichnung"),
     "Datenschutz-Basischeck": ("datenschutz", "dsgvo", "personenbezogene daten"),
-    "Gesellschaftsvertrag": ("gesellschaftsvertrag", "satzung", "vertrag"),
-    "Kapitalübersicht": ("kapital", "stammkapital", "einlage"),
-    "Geschäftsadresse-Nachweis": ("geschäftsadresse", "geschäftsanschrift", "anschrift", "adresse", "sitz"),
-    "Gewerbeanmeldung": ("gewerbeanmeldung", "gewerbe"),
-    "Steuerdaten": ("steuerdaten", "steuernummer", "finanzamt", "steuer"),
-    "AI-Use-Case-Steckbrief": ("ai", "ki", "use case", "use-case", "usecase", "modell"),
-    "Gründer:innenprofil": ("gründer", "gruender"),
-    "Unternehmensprofil": ("unternehmen", "firma", "company"),
+    "Vereinssatzung": ("vereinssatzung", "satzung", "satzungsentwurf"),
+    "Vereinszweckbeschreibung": ("vereinszweck", "zweckbeschreibung"),
+    "Gründungsmitgliederliste": ("gruendungsmitglieder", "gründungsmitglieder", "mitgliederliste"),
+    "Namensprüfung": ("namenspruefung", "namensprüfung", "vereinsname", "namecheck"),
+    "Vereinssitz-Nachweis": ("vereinssitz", "verwaltungssitz"),
+    "Gemeinnützigkeitskonzept": ("gemeinnuetzigkeit", "gemeinnützigkeit", "gemeinnützigkeitskonzept"),
+    "Gründungsprotokoll": ("gruendungsprotokoll", "gründungsprotokoll", "gruendungsversammlung", "gründungsversammlung"),
+    "Vorstandswahlprotokoll": ("vorstandswahl", "vorstandswahlprotokoll", "wahlprotokoll"),
+    "Unterzeichnete Satzung": ("unterzeichnete satzung", "satzung unterzeichnet", "satzung unterschrieben"),
+    "Vereinsregister-Anmeldung": ("vereinsregister", "registeranmeldung", "registergericht"),
+    "Notarielle Beglaubigung": ("notar", "notariell", "beglaubigung"),
+    "Antrag Satzungsmäßigkeit": ("satzungsmäßigkeit", "satzungsmaessigkeit", "feststellung der satzungsmäßigkeit", "feststellung der satzungsmaessigkeit"),
+    "Buchhaltungs-Setup": ("buchhaltung", "aufzeichnungen", "mittelverwendung"),
+    "Vereinskonto-Nachweis": ("vereinskonto", "bankkonto", "kontoeröffnung", "kontoeroeffnung"),
 }
 
 
-def detect_intent(message: str) -> str:
-    normalized = message.lower()
+def _normalize_message(message: str) -> str:
+    return " ".join(message.lower().strip().split())
+
+
+def detect_intent(message: str, mode: str = "help") -> str:
+    normalized = _normalize_message(message)
+    normalized_compact = normalized.replace(",", "").replace("!", "").replace("?", "")
+
+    if mode == "ask-me":
+        if normalized_compact in YES_TOKENS:
+            return "GUIDED_CONFIRM"
+        if normalized_compact in NO_TOKENS:
+            return "GUIDED_DECLINE"
+
     if any(phrase in normalized for phrase in ("dokumente enthalten", "enthalten", "volltext", "suche", "inhalt")):
         return "DOCUMENT_CONTENT_SEARCH"
-    if any(phrase in normalized for phrase in ("was bedeutet", "was ist")):
+    if any(phrase in normalized for phrase in ("was bedeutet", "was ist", "was heißt", "erklär", "erkläre")):
         return "TERM_EXPLANATION"
     if "zeig mir" in normalized and "dokument" in normalized:
         return "DOCUMENT_LOOKUP"
@@ -43,31 +86,47 @@ def detect_intent(message: str) -> str:
         return "EVIDENCE_SUMMARY"
     if any(phrase in normalized for phrase in ("welche dokumente fehlen", "was fehlt", "offen")):
         return "MISSING_EVIDENCE"
+    if mode == "ask-me" and any(term in normalized for term in ASK_ME_SCOPE_TERMS):
+        return "ASK_ME_SCOPE"
     return "OUT_OF_SCOPE"
 
 
 def normalize_document_type_from_message(message: str) -> str | None:
-    normalized = message.lower()
+    normalized = _normalize_message(message)
     for document_type, aliases in DOCUMENT_TYPE_ALIASES.items():
         if any(alias in normalized for alias in aliases):
             return document_type
     return None
 
 
-def _build_out_of_scope_response() -> ChatResponse:
+def _build_response(
+    *,
+    intent: str,
+    answer: str,
+    sources: list[ChatSource] | None = None,
+    related_documents: list[DocumentRecord] | None = None,
+    related_checks: list[FoundingCheck] | None = None,
+    warnings: list[str] | None = None,
+) -> ChatResponse:
     return ChatResponse(
-        intent="OUT_OF_SCOPE",
-        answer=OUT_OF_SCOPE_ANSWER,
-        sources=[],
-        related_documents=[],
-        related_checks=[],
-        warnings=[],
+        intent=intent,
+        answer=answer,
+        sources=sources or [],
+        related_documents=related_documents or [],
+        related_checks=related_checks or [],
+        warnings=warnings or [],
         disclaimer=STANDARD_DISCLAIMER,
     )
 
 
+def _build_out_of_scope_response(mode: str) -> ChatResponse:
+    answer = ASK_ME_SCOPE_GUARD if mode == "ask-me" else OUT_OF_SCOPE_ANSWER
+    intent = "ASK_ME_SCOPE_GUARD" if mode == "ask-me" else "OUT_OF_SCOPE"
+    return _build_response(intent=intent, answer=answer)
+
+
 def _find_related_checks(state: AppState, message: str, document_type: str | None = None) -> list[FoundingCheck]:
-    normalized = message.lower()
+    normalized = _normalize_message(message)
     matches: list[FoundingCheck] = []
     for check in state.checks:
         check_blob = " ".join(
@@ -91,27 +150,118 @@ def _documents_for_type(state: AppState, document_type: str | None) -> list[Docu
     return [document for document in state.documents if document.document_type == document_type]
 
 
-def answer_chat(message: str, state: AppState) -> ChatResponse:
-    intent = detect_intent(message)
+def _generate_constrained_answer(topic: str, facts: list[str]) -> str | None:
+    prompt = (
+        "Du bist der stark eingeschränkte FoundAItion-Pilot. "
+        "Antworte auf Deutsch in maximal 3 kurzen Sätzen. "
+        "Nutze ausschließlich die bereitgestellten Fakten. "
+        "Keine Rechtsberatung, keine Warnhinweise, keine neuen Pflichten, keine Spekulation. "
+        "Wenn die Fakten nicht ausreichen, antworte exakt mit OUT_OF_SCOPE.\n\n"
+        f"Thema: {topic}\n"
+        "Fakten:\n- "
+        + "\n- ".join(facts)
+    )
+    answer = generate_short_answer(prompt)
+    if not answer or "OUT_OF_SCOPE" in answer:
+        return None
+    return answer
+
+
+def _build_guided_confirm_response(state: AppState) -> ChatResponse:
+    knowledge_item = next((item for item in state.knowledge_base if item.term in {"e.V.", "eingetragener Verein"}), None)
+    facts = [
+        "Ein eingetragener Verein ist ein nicht wirtschaftlicher Verein.",
+        "Er wird durch Eintragung in das Vereinsregister rechtsfähig.",
+        "Im aktuellen FoundAItion-Pilot passen dazu besonders ideeller Zweck, Mitgliedschaft, mindestens sieben Gründungsmitglieder und eine demokratische Mitgliederverwaltung.",
+    ]
+    answer = _generate_constrained_answer("eingetragener Verein", facts)
+    if not answer:
+        answer = (
+            "Gerne. Ein eingetragener Verein ist im Pilot ein nicht wirtschaftlicher Verein, der durch die Eintragung "
+            "ins Vereinsregister rechtsfähig wird. Typisch sind ein ideeller Zweck, Mitgliedschaft, mindestens sieben "
+            "Gründungsmitglieder und eine demokratische Mitgliederverwaltung."
+        )
+    related_checks = [check for check in state.checks if check.id in {"association_purpose", "founding_members", "legal_form_path"}]
+    sources = []
+    if knowledge_item:
+        sources.append(ChatSource(source_type="knowledge_base", title=knowledge_item.term, excerpt=knowledge_item.category))
+    return _build_response(
+        intent="GUIDED_CONFIRM",
+        answer=answer,
+        sources=sources,
+        related_checks=related_checks,
+    )
+
+
+def _build_guided_decline_response() -> ChatResponse:
+    return _build_response(
+        intent="GUIDED_DECLINE",
+        answer=(
+            "Alles klar. Dann bleibe ich im engen FoundAItion-Rahmen und beantworte dir kurze Fragen zu e.V., "
+            "Rechtsfähigkeit, Gemeinnützigkeit, Satzung, Vereinsregister oder zu deinen Dokumenten."
+        ),
+    )
+
+
+def _build_ask_me_scope_response(message: str, state: AppState) -> ChatResponse:
+    item = find_knowledge_item(message, state.knowledge_base)
+    related_checks = _find_related_checks(state, message)
+    if item:
+        answer = _generate_constrained_answer(item.term, [item.explanation]) or item.explanation
+        return _build_response(
+            intent="ASK_ME_SCOPE",
+            answer=answer,
+            sources=[ChatSource(source_type="knowledge_base", title=item.term, excerpt=item.category)],
+            related_checks=related_checks[:3],
+        )
+
+    if "eingetragener verein" in _normalize_message(message) or " e.v" in _normalize_message(message):
+        return _build_guided_confirm_response(state)
+
+    if related_checks:
+        first_check = related_checks[0]
+        facts = [first_check.description, first_check.explanation]
+        answer = _generate_constrained_answer(first_check.title, facts)
+        if not answer:
+            answer = first_check.explanation
+        return _build_response(
+            intent="ASK_ME_SCOPE",
+            answer=answer,
+            sources=[ChatSource(source_type="check", title=first_check.title, reference_id=first_check.id, excerpt=first_check.category)],
+            related_checks=related_checks[:3],
+        )
+
+    return _build_out_of_scope_response("ask-me")
+
+
+def answer_chat(message: str, state: AppState, mode: str = "help") -> ChatResponse:
+    intent = detect_intent(message, mode)
     document_type = normalize_document_type_from_message(message)
     evidence_matrix = build_evidence_matrix(state)
+
+    if mode == "ask-me" and intent == "GUIDED_CONFIRM":
+        return _build_guided_confirm_response(state)
+
+    if mode == "ask-me" and intent == "GUIDED_DECLINE":
+        return _build_guided_decline_response()
+
+    if mode == "ask-me" and intent == "ASK_ME_SCOPE":
+        return _build_ask_me_scope_response(message, state)
 
     if intent == "DOCUMENT_EXISTS":
         related_documents = _documents_for_type(state, document_type)
         if not document_type:
-            return _build_out_of_scope_response()
+            return _build_out_of_scope_response(mode)
         if related_documents:
             answer = f"Ja, für „{document_type}“ liegt im Pilot bereits mindestens ein Dokument vor."
         else:
             answer = f"Nein, für „{document_type}“ wurde aktuell noch kein Dokument hochgeladen oder manuell markiert."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[ChatSource(source_type="document", title=document.filename, reference_id=document.id) for document in related_documents],
             related_documents=related_documents,
             related_checks=_find_related_checks(state, message, document_type),
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "MISSING_EVIDENCE":
@@ -131,69 +281,61 @@ def answer_chat(message: str, state: AppState) -> ChatResponse:
                 missing_types.extend(row.missing_document_types or row.required_document_types)
             deduplicated = ", ".join(sorted(dict.fromkeys(missing_types))) if missing_types else "keine zusätzlichen Dokumenttypen"
             answer = f"Offen sind aktuell vor allem folgende Nachweise oder Dokumenttypen: {deduplicated}."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[ChatSource(source_type="check", title=row.check_title, reference_id=row.check_id, excerpt=row.explanation) for row in open_items[:5]],
-            related_documents=[],
             related_checks=[check for check in state.checks if check.id in {row.check_id for row in open_items}],
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "CHECK_STATUS":
         related_checks = _find_related_checks(state, message, document_type)
         if not related_checks:
-            return _build_out_of_scope_response()
+            return _build_out_of_scope_response(mode)
         first_check = related_checks[0]
         matching_row = next((row for row in evidence_matrix.rows if row.check_id == first_check.id), None)
         if matching_row:
-            answer = (
-                f"„{first_check.title}“ steht auf „{first_check.status}“. "
-                f"{matching_row.explanation}"
-            )
+            answer = f"„{first_check.title}“ steht auf „{first_check.status}“. {matching_row.explanation}"
         else:
             answer = f"„{first_check.title}“ steht aktuell auf „{first_check.status}“."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[ChatSource(source_type="check", title=first_check.title, reference_id=first_check.id, excerpt=first_check.description)],
             related_documents=[document for document in state.documents if document.id in first_check.matched_document_ids],
             related_checks=related_checks[:3],
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "DOCUMENT_LOOKUP":
         related_documents = _documents_for_type(state, document_type)
         if not document_type:
-            return _build_out_of_scope_response()
+            return _build_out_of_scope_response(mode)
         if related_documents:
             answer = f"Für „{document_type}“ habe ich {len(related_documents)} passendes Dokument(e) gefunden."
         else:
             answer = f"Für „{document_type}“ ist aktuell kein passendes Dokument im Pilot hinterlegt."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[ChatSource(source_type="document", title=document.filename, reference_id=document.id) for document in related_documents],
             related_documents=related_documents,
             related_checks=_find_related_checks(state, message, document_type),
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "TERM_EXPLANATION":
         item = find_knowledge_item(message, state.knowledge_base)
         if not item:
-            return _build_out_of_scope_response()
-        return ChatResponse(
-            intent=intent,
-            answer=item.explanation,
+            if mode == "ask-me":
+                return _build_ask_me_scope_response(message, state)
+            return _build_out_of_scope_response(mode)
+        answer = item.explanation
+        if mode == "ask-me":
+            answer = _generate_constrained_answer(item.term, [item.explanation]) or item.explanation
+        return _build_response(
+            intent=intent if mode == "help" else "ASK_ME_SCOPE",
+            answer=answer,
             sources=[ChatSource(source_type="knowledge_base", title=item.term, excerpt=item.category)],
-            related_documents=[],
             related_checks=_find_related_checks(state, message, document_type),
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "EVIDENCE_SUMMARY":
@@ -205,13 +347,7 @@ def answer_chat(message: str, state: AppState) -> ChatResponse:
         for row in relevant_rows:
             matched_documents.extend(row.matched_documents)
         unique_documents = list({document.id: document for document in matched_documents}.values())
-        missing_types = sorted(
-            {
-                missing_type
-                for row in relevant_rows
-                for missing_type in row.missing_document_types
-            }
-        )
+        missing_types = sorted({missing_type for row in relevant_rows for missing_type in row.missing_document_types})
         if unique_documents:
             answer = f"Vorhanden sind aktuell {len(unique_documents)} Nachweis-Dokument(e)."
             if missing_types:
@@ -220,14 +356,12 @@ def answer_chat(message: str, state: AppState) -> ChatResponse:
             answer = "Aktuell liegen noch keine passenden Nachweise für diese Anfrage vor."
             if missing_types:
                 answer += f" Offen sind insbesondere: {', '.join(missing_types)}."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[ChatSource(source_type="document", title=document.filename, reference_id=document.id) for document in unique_documents[:5]],
             related_documents=unique_documents[:5],
             related_checks=[check for check in state.checks if check.id in {row.check_id for row in relevant_rows[:5]}],
-            warnings=[],
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
     if intent == "DOCUMENT_CONTENT_SEARCH":
@@ -241,7 +375,7 @@ def answer_chat(message: str, state: AppState) -> ChatResponse:
             answer = f"Ich habe {len(rag_response.results)} Treffer im lokalen Dokumentindex gefunden."
         else:
             answer = "Im lokalen Dokumentindex wurde kein passender Treffer gefunden."
-        return ChatResponse(
+        return _build_response(
             intent=intent,
             answer=answer,
             sources=[
@@ -256,8 +390,6 @@ def answer_chat(message: str, state: AppState) -> ChatResponse:
             related_documents=related_documents,
             related_checks=_find_related_checks(state, message, document_type),
             warnings=rag_response.warnings,
-            disclaimer=STANDARD_DISCLAIMER,
         )
 
-    return _build_out_of_scope_response()
-
+    return _build_out_of_scope_response(mode)

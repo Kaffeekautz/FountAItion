@@ -8,7 +8,10 @@ import type {
   UploadDocumentResponse,
 } from "../types";
 
-const API_BASE_URL = "http://localhost:8000";
+const browserHost =
+  typeof window !== "undefined" && window.location.hostname ? window.location.hostname : "localhost";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? `http://${browserHost}:8000`;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, init);
@@ -79,15 +82,14 @@ export function searchRag(query: string, topK = 3): Promise<RagSearchResponse> {
   });
 }
 
-export function sendChatMessage(message: string): Promise<ChatResponse> {
+export function sendChatMessage(message: string, mode: "ask-me" = "ask-me"): Promise<ChatResponse> {
   return request<ChatResponse>("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, mode }),
   });
 }
 
 export function fetchEvidenceMatrix(): Promise<EvidenceMatrixResponse> {
   return request<EvidenceMatrixResponse>("/api/evidence/matrix");
 }
-

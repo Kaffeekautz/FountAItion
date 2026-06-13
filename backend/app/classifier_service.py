@@ -8,17 +8,20 @@ UNKNOWN_DOCUMENT = "Unbekanntes Dokument"
 DOCUMENT_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("Impressum", ("impressum", "anbieterkennzeichnung")),
     ("Datenschutz-Basischeck", ("datenschutz", "dsgvo", "personenbezogene daten")),
-    ("Gesellschaftsvertrag", ("gesellschaftsvertrag", "satzung", "geschäftsanteile", "geschaeftsanteile", "vertrag")),
-    ("Kapitalübersicht", ("kapital", "stammkapital", "einlage")),
-    (
-        "Geschäftsadresse-Nachweis",
-        ("geschäftsanschrift", "geschaeftsanschrift", "geschäftsadresse", "geschaeftsadresse", "adresse", "anschrift"),
-    ),
-    ("Gewerbeanmeldung", ("gewerbeanmeldung", "gewerbe")),
-    ("Steuerdaten", ("steuernummer", "finanzamt", "steuerliche erfassung", "steuer")),
-    ("AI-Use-Case-Steckbrief", ("ki", "ai", "modell", "automatisierte entscheidung", "use case", "use-case", "usecase")),
-    ("Gründer:innenprofil", ("gründer", "gruender")),
-    ("Unternehmensprofil", ("unternehmen", "firma", "company")),
+    ("Vereinssatzung", ("vereinssatzung", "satzung", "satzungsentwurf")),
+    ("Vereinszweckbeschreibung", ("vereinszweck", "zweckbeschreibung", "satzungszweck")),
+    ("Gründungsmitgliederliste", ("gruendungsmitglieder", "gründungsmitglieder", "mitgliederliste", "mitgliederverzeichnis")),
+    ("Namensprüfung", ("namenspruefung", "namensprüfung", "vereinsname", "namecheck")),
+    ("Vereinssitz-Nachweis", ("vereinssitz", "vereinssitz", "verwaltungssitz", "sitz des vereins")),
+    ("Gemeinnützigkeitskonzept", ("gemeinnuetzigkeit", "gemeinnützigkeit", "selbstlosigkeit", "vermoegensbindung", "vermögensbindung")),
+    ("Gründungsprotokoll", ("gruendungsprotokoll", "gründungsprotokoll", "gruendungsversammlung", "gründungsversammlung", "satzungsbeschluss")),
+    ("Vorstandswahlprotokoll", ("vorstandswahl", "vorstandswahlprotokoll", "wahlprotokoll", "vorstand bestellt")),
+    ("Unterzeichnete Satzung", ("unterzeichnete satzung", "satzung unterzeichnet", "satzung unterschrieben")),
+    ("Vereinsregister-Anmeldung", ("vereinsregister", "registeranmeldung", "registergericht", "anmeldung zur eintragung")),
+    ("Notarielle Beglaubigung", ("notar", "notariell", "beglaubigung")),
+    ("Antrag Satzungsmäßigkeit", ("satzungsmäßigkeit", "satzungsmaessigkeit", "feststellung der satzungsmäßigkeit", "feststellung der satzungsmaessigkeit")),
+    ("Buchhaltungs-Setup", ("buchhaltung", "einnahmen ausgaben", "aufzeichnungen", "mittelverwendung")),
+    ("Vereinskonto-Nachweis", ("vereinskonto", "bankkonto", "kontoeroeffnung", "kontoeröffnung")),
 ]
 
 

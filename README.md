@@ -1,6 +1,6 @@
 # FoundAItion
 
-FoundAItion ist ein lokal lauffähiger End-to-End-MVP für einen ersten strukturierten Gründungs-Compliance-Check. Der Pilot bildet bewusst nur den Pfad **UG haftungsbeschränkt** ab und kombiniert Demo-State, Dokumentenportfolio, Upload-Verarbeitung, OCR/PDF-Extraction, lokalen JSON-RAG-Index, Evidence-Mapping und einen eng begrenzten Help-Chat.
+FoundAItion ist ein lokal lauffähiger End-to-End-MVP für einen ersten strukturierten Gründungs-Compliance-Check. Der Pilot bildet aktuell bewusst nur den Pfad **eingetragener Verein (e.V.)** ab und kombiniert Demo-State, Dokumentenportfolio, Upload-Verarbeitung, OCR/PDF-Extraction, lokalen JSON-RAG-Index, Evidence-Mapping und einen eng begrenzten Help-Chat.
 
 ## Fachlicher Hinweis
 
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 ## Backend Start
 
 ```bash
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Frontend Setup
@@ -57,6 +57,34 @@ npm run dev
 - Backend Health: <http://localhost:8000/health>
 - Backend State: <http://localhost:8000/api/state>
 - Frontend: <http://localhost:5173>
+
+## Im selben Netz teilen
+
+Starte Backend und Frontend so, dass sie nicht nur auf `localhost`, sondern im lokalen Netz lauschen:
+
+```bash
+# Terminal 1
+cd backend
+source .venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2
+cd frontend
+npm run dev
+```
+
+Danach deine lokale IP anzeigen:
+
+```bash
+hostname -I
+```
+
+Die erste IPv4-Adresse ist in den meisten Heim- und Office-Netzen die richtige LAN-Adresse. Andere Geräte im selben Netz erreichen FoundAItion dann typischerweise unter:
+
+- `http://DEINE-LAN-IP:5173`
+- z. B. `http://10.172.6.45:5173`
+
+Das Frontend verwendet für API-Aufrufe automatisch denselben Host und spricht dadurch im LAN das Backend unter Port `8000` an.
 
 ## Upload-Testdateinamen
 
@@ -138,7 +166,7 @@ Wenn `sudo` nicht non-interaktiv verfügbar ist, dokumentiert FoundAItion die be
 
 ## Bekannte Einschränkungen
 
-- POC nur für **UG haftungsbeschränkt**
+- POC aktuell nur für **eingetragener Verein (e.V.)**
 - keine echte Rechtsberatung
 - keine Behördenintegration
 - keine echte Signatur

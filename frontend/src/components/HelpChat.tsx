@@ -7,9 +7,17 @@ interface HelpChatProps {
   messages: ChatMessage[];
   isLoading: boolean;
   onSend: (message: string) => Promise<void>;
+  placeholder?: string;
+  suggestions?: string[];
 }
 
-export function HelpChat({ messages, isLoading, onSend }: HelpChatProps) {
+export function HelpChat({
+  messages,
+  isLoading,
+  onSend,
+  placeholder = "Stelle eine erlaubte FoundAItion-Frage...",
+  suggestions = [],
+}: HelpChatProps) {
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
@@ -28,7 +36,7 @@ export function HelpChat({ messages, isLoading, onSend }: HelpChatProps) {
           <div
             key={entry.id}
             className={`rounded-3xl px-4 py-4 ${
-              entry.role === "user" ? "bg-slate-900 text-white" : "border border-slate-200 bg-slate-50 text-slate-800"
+              entry.role === "user" ? "bg-brand-navy text-white" : "border border-slate-200 bg-slate-50 text-slate-800"
             }`}
           >
             <div className="flex items-center justify-between gap-3">
@@ -63,7 +71,24 @@ export function HelpChat({ messages, isLoading, onSend }: HelpChatProps) {
         ))}
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-6 space-y-3">
+        {suggestions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {suggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                disabled={isLoading}
+                onClick={() => void onSend(suggestion)}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition hover:border-brand-violet hover:bg-white hover:text-brand-violet disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-3 sm:flex-row">
         <input
           value={message}
           onChange={(event) => setMessage(event.target.value)}
@@ -73,19 +98,19 @@ export function HelpChat({ messages, isLoading, onSend }: HelpChatProps) {
               void handleSubmit();
             }
           }}
-          placeholder="Stelle eine erlaubte FoundAItion-Frage..."
+          placeholder={placeholder}
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none ring-0 placeholder:text-slate-400 focus:border-brand-violet"
         />
         <button
           type="button"
           disabled={isLoading}
           onClick={() => void handleSubmit()}
-          className="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-violet disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? "Antwortet..." : "Senden"}
         </button>
+        </div>
       </div>
     </div>
   );
 }
-

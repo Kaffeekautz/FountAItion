@@ -5,17 +5,16 @@ export default {
     extend: {
       colors: {
         brand: {
-          navy: "#102a6b",
-          violet: "#6d5efc",
-          green: "#10b981",
-          blue: "#3b82f6"
+          navy: "#1f4f45",
+          violet: "#4e8f76",
+          green: "#7ab89c",
+          blue: "#b7ddd0"
         }
       },
       boxShadow: {
-        soft: "0 18px 45px rgba(15, 23, 42, 0.08)"
+        soft: "0 18px 45px rgba(31, 79, 69, 0.12)"
       }
     }
   },
   plugins: []
 };
-

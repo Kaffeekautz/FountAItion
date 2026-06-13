@@ -127,6 +127,7 @@ class RagSearchResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+    mode: str | None = None
 
 
 class ChatSource(BaseModel):
@@ -174,4 +175,3 @@ class EvidenceMatrixResponse(BaseModel):
     rows: list[EvidenceMatrixRow]
     disclaimer: str
     product_message: str
-

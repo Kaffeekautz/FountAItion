@@ -1,4 +1,5 @@
 import type { EvidenceMatrixResponse } from "../types";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 import { DisclaimerBox } from "../components/DisclaimerBox";
 import { EvidenceMatrix } from "../components/EvidenceMatrix";
 
@@ -24,24 +25,25 @@ export function EvidenceView({ evidenceMatrix }: EvidenceViewProps) {
 
   return (
     <div className="space-y-6">
-      <section className="panel-section">
-        <p className="muted-label">Evidence Buddy</p>
-        <h2 className="mt-2 text-3xl font-semibold text-slate-900">Evidence Buddy</h2>
-        <p className="mt-3 text-sm text-slate-600">{evidenceMatrix.product_message}</p>
-      </section>
+      <CollapsibleSection id="evidence-overview" label="Evidence Buddy" title="Evidence Buddy" defaultOpen={false}>
+        <p className="text-sm text-slate-600">{evidenceMatrix.product_message}</p>
+      </CollapsibleSection>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        {summaryCards.map((card) => (
-          <div key={card.label} className="panel-section">
-            <p className="muted-label">{card.label}</p>
-            <p className={`mt-2 text-3xl font-bold ${card.color}`}>{card.value}</p>
-          </div>
-        ))}
-      </div>
+      <CollapsibleSection id="evidence-summary" label="Bereich" title="Übersicht" defaultOpen={false}>
+        <div className="grid gap-4 md:grid-cols-4">
+          {summaryCards.map((card) => (
+            <div key={card.label} className="panel-section">
+              <p className="muted-label">{card.label}</p>
+              <p className={`mt-2 text-3xl font-bold ${card.color}`}>{card.value}</p>
+            </div>
+          ))}
+        </div>
+      </CollapsibleSection>
 
-      <EvidenceMatrix rows={evidenceMatrix.rows} />
+      <CollapsibleSection id="evidence-matrix" label="Bereich" title="Matrix" defaultOpen={false}>
+        <EvidenceMatrix rows={evidenceMatrix.rows} />
+      </CollapsibleSection>
       <DisclaimerBox text={evidenceMatrix.disclaimer} />
     </div>
   );
 }
-

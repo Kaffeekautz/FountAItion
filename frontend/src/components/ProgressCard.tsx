@@ -28,4 +28,3 @@ export function ProgressCard({ title, doneCount, totalCount, description }: Prog
     </div>
   );
 }
-

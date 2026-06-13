@@ -6,11 +6,11 @@ import { DisclaimerBox } from "../components/DisclaimerBox";
 import { ProgressCard } from "../components/ProgressCard";
 import { StatusBadge } from "../components/StatusBadge";
 
-type ViewKey = "dashboard" | "company-type" | "founding" | "documents" | "evidence" | "resources" | "help";
+type ViewKey = "dashboard" | "company-type" | "founding" | "compliance" | "documents" | "evidence" | "resources" | "ask-me";
 
 interface DashboardViewProps {
   state: AppState;
-  onNavigate: (view: ViewKey) => void;
+  onNavigate: (view: ViewKey, sectionId?: string) => void;
 }
 
 export function DashboardView({ state, onNavigate }: DashboardViewProps) {
@@ -23,50 +23,37 @@ export function DashboardView({ state, onNavigate }: DashboardViewProps) {
       <section className="panel-section">
         <p className="muted-label">Willkommen</p>
         <h2 className="mt-2 text-3xl font-semibold text-slate-900">Hallo {state.founder_case.userName}! 👋</h2>
-        <p className="mt-3 text-lg text-slate-600">Schön, dass du da bist. Bereit, dein Unternehmen zu starten?</p>
+        <p className="mt-3 text-lg text-slate-600">Schön, dass du da bist. Hier behältst du Pilotstatus, Unterlagen und nächste Schritte im Blick.</p>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-        <ProgressCard
-          title="Pilot-Fortschritt"
-          doneCount={doneChecks.length}
-          totalCount={relevantChecks.length}
-          description={`Du hast ${doneChecks.length} von ${relevantChecks.length} Schritten abgeschlossen.`}
-        />
-        <div className="panel-section">
-          <p className="muted-label">Ausgewählter POC-Pfad</p>
-          <h3 className="mt-2 text-xl font-semibold text-slate-900">
-            {state.founder_case.selectedLegalForm
-              ? `Ausgewählter POC-Pfad: ${state.founder_case.selectedLegalForm}`
-              : "Noch kein POC-Pfad ausgewählt"}
-          </h3>
-          <p className="mt-3 text-sm text-slate-600">
-            Der Pilot führt bewusst nur durch den strukturierten UG-Compliance-Check.
-          </p>
-        </div>
-      </div>
+      <ProgressCard
+        title="Pilot-Fortschritt"
+        doneCount={doneChecks.length}
+        totalCount={relevantChecks.length}
+        description={`Du hast ${doneChecks.length} von ${relevantChecks.length} Schritten abgeschlossen.`}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <ActionCard
-          title="Unternehmensart Findung"
-          description="Gehe den kompakten Entscheidungsbaum durch und aktiviere den UG-POC-Pfad."
+          title="Rechtsform finden"
+          description="Gehe den Entscheidungsbaum zur Rechtsformwahl durch und aktiviere danach den passenden Pilot-Pfad."
           icon={<Building2 className="h-6 w-6" />}
           actionLabel="Zum Entscheidungsbaum"
           onClick={() => onNavigate("company-type")}
         />
         <ActionCard
-          title="Unternehmens Gründung"
-          description="Arbeite die strukturierten Gründungsschritte durch und halte deinen Status aktuell."
+          title="Gründungs-Check"
+          description="Arbeite die strukturierte Checkliste durch und halte deinen Status Schritt für Schritt aktuell."
           icon={<FileText className="h-6 w-6" />}
           actionLabel="Zum Gründungscheck"
           onClick={() => onNavigate("founding")}
         />
         <ActionCard
-          title="Compliance & Organisation"
-          description="Prüfe Dokumente, offene Nachweise und den technischen Evidence-Status."
+          title="Compliance"
+          description="Behalte laufende Pflichten, Folgeprozesse und offene Compliance-Themen im Blick."
           icon={<ShieldCheck className="h-6 w-6" />}
-          actionLabel="Zum Evidence Buddy"
-          onClick={() => onNavigate("evidence")}
+          actionLabel="Zur Compliance"
+          onClick={() => onNavigate("compliance")}
         />
       </div>
 
@@ -97,4 +84,3 @@ export function DashboardView({ state, onNavigate }: DashboardViewProps) {
     </div>
   );
 }
-

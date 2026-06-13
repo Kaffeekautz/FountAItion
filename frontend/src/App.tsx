@@ -13,12 +13,14 @@ import {
 } from "./api/foundationApi";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
+import { toSectionId } from "./utils/sectionIds";
+import { AskMeView } from "./views/AskMeView";
+import { ComplianceView } from "./views/ComplianceView";
 import { DashboardView } from "./views/DashboardView";
 import { CompanyTypeView } from "./views/CompanyTypeView";
 import { DocumentsView } from "./views/DocumentsView";
 import { EvidenceView } from "./views/EvidenceView";
 import { FoundingView } from "./views/FoundingView";
-import { HelpView } from "./views/HelpView";
 import { ResourcesView } from "./views/ResourcesView";
 import type {
   AppState,
@@ -29,20 +31,39 @@ import type {
   UploadDocumentResponse,
 } from "./types";
 
-type ViewKey = "dashboard" | "company-type" | "founding" | "documents" | "evidence" | "resources" | "help";
+type ViewKey = "dashboard" | "company-type" | "founding" | "compliance" | "documents" | "evidence" | "resources" | "ask-me";
+
+const createAskMeWelcomeMessage = (): ChatMessage => ({
+  id: "ask-me-welcome",
+  role: "assistant",
+  text: 'Möchtest du mehr über „eingetragener Verein“ wissen? Antworte einfach mit Ja oder Nein.',
+  response: {
+    intent: "GUIDED_PROMPT",
+    answer: 'Möchtest du mehr über „eingetragener Verein“ wissen? Antworte einfach mit Ja oder Nein.',
+    disclaimer: "FoundAItion gibt eine strukturierende Orientierung und ersetzt keine Rechtsberatung.",
+    related_checks: [],
+    related_documents: [],
+    sources: [],
+    warnings: [],
+  },
+});
 
 const viewMeta: Record<ViewKey, { title: string; subtitle: string }> = {
   dashboard: {
     title: "Compliance Dashboard",
-    subtitle: "Behalte Demo-State, Fortschritt und nächste Schritte für den UG-Pilot zentral im Blick.",
+    subtitle: "Behalte Demo-State, Fortschritt und nächste Schritte für den Pilot zentral im Blick.",
   },
   "company-type": {
-    title: "Unternehmensart",
-    subtitle: "Aktiviere den fokussierten UG-Pfad über den kompakten Entscheidungsbaum.",
+      title: "Rechtsform",
+      subtitle: "Nutze den Entscheidungsbaum zur Rechtsformwahl und aktiviere darunter den fokussierten e.V.-Pfad.",
   },
   founding: {
     title: "Gründung",
     subtitle: "Arbeite den strukturierten FoundAItion-Gründungscheck Schritt für Schritt ab.",
+  },
+  compliance: {
+    title: "Compliance",
+    subtitle: "Behalte laufende Pflichten, Folgeprozesse und spätere Register- oder Organisationspflichten im Blick.",
   },
   documents: {
     title: "Dokumente",
@@ -53,12 +74,12 @@ const viewMeta: Record<ViewKey, { title: string; subtitle: string }> = {
     subtitle: "Sieh auf einen Blick, welche Nachweise technisch belegt und welche noch offen sind.",
   },
   resources: {
-    title: "Ressourcen",
-    subtitle: "Nutze den FoundAItion-Begriffskatalog als begrenzte Wissensbasis im Pilotkontext.",
+    title: "Glossar",
+    subtitle: "Nutze das e.V.-Glossar als laienverständliche Wissensbasis für Nutzer und den eingeschränkten Chat.",
   },
-  help: {
-    title: "Hilfe",
-    subtitle: "Stelle nur erlaubte FoundAItion-Fragen zu Dokumenten, Nachweisen, Checks und Begriffen.",
+  "ask-me": {
+    title: "Frag mich",
+    subtitle: "Stelle eng geführte Pilotfragen zu e.V., Begriffen und Grundlagen.",
   },
 };
 
@@ -67,6 +88,7 @@ function App() {
   const [evidenceMatrix, setEvidenceMatrix] = useState<EvidenceMatrixResponse | null>(null);
   const [ragStatus, setRagStatus] = useState<RagStatus | null>(null);
   const [currentView, setCurrentView] = useState<ViewKey>("dashboard");
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSelectingLegalForm, setIsSelectingLegalForm] = useState(false);
@@ -75,24 +97,8 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [isReindexing, setIsReindexing] = useState(false);
   const [lastUploadResult, setLastUploadResult] = useState<UploadDocumentResponse | null>(null);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      text: "Ich beantworte im Pilot nur Fragen zu Dokumenten, offenen Nachweisen, Checklistenpunkten und Begriffen im FoundAItion-Kontext.",
-      response: {
-        intent: "OUT_OF_SCOPE",
-        answer:
-          "Ich beantworte im Pilot nur Fragen zu Dokumenten, offenen Nachweisen, Checklistenpunkten und Begriffen im FoundAItion-Kontext.",
-        disclaimer: "FoundAItion gibt eine strukturierende Orientierung und ersetzt keine Rechtsberatung.",
-        related_checks: [],
-        related_documents: [],
-        sources: [],
-        warnings: [],
-      },
-    },
-  ]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [askMeMessages, setAskMeMessages] = useState<ChatMessage[]>([createAskMeWelcomeMessage()]);
+  const [isAskMeLoading, setIsAskMeLoading] = useState(false);
 
   const loadApp = useCallback(async () => {
     setError(null);
@@ -118,17 +124,85 @@ function App() {
     })();
   }, [loadApp]);
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (!activeSectionId) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      const target = document.getElementById(activeSectionId);
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [currentView, activeSectionId]);
+
   const currentMeta = useMemo(() => viewMeta[currentView], [currentView]);
+
+  const sectionsByView = useMemo(() => {
+    if (!appState) {
+      return {};
+    }
+
+    const foundingCategories = Array.from(
+      new Set(appState.checks.filter((check) => check.category !== "Laufende Pflichten").map((check) => check.category)),
+    );
+    const documentCategories = Array.from(new Set(appState.document_templates.map((template) => template.category)));
+    const glossaryCategories = Array.from(new Set(appState.knowledge_base.map((item) => item.category)));
+
+    return {
+      "company-type": [
+        { id: "company-type-start", label: "Start" },
+        { id: "company-type-decision", label: "Entscheidungsbaum" },
+        { id: "company-type-progress", label: "Zwischenstand" },
+        { id: "company-type-result", label: "Auswertung" },
+        { id: "company-type-activation", label: "Aktivierung" },
+      ],
+      founding: [{ id: "founding-overview", label: "Übersicht" }, ...foundingCategories.map((category) => ({ id: toSectionId("founding", category), label: category }))],
+      compliance: [
+        { id: "compliance-overview", label: "Übersicht" },
+        { id: "compliance-finanzen", label: "Finanzen" },
+        { id: "compliance-mitarbeiter", label: "Mitarbeiter" },
+        { id: "compliance-mitgliederversammlung", label: "Mitgliederversammlung" },
+        { id: "compliance-laufende-pflichten", label: "Laufende Pflichten" },
+      ],
+      documents: [
+        { id: "documents-overview", label: "Übersicht" },
+        { id: "documents-upload", label: "Upload" },
+        { id: "documents-rag-status", label: "RAG-Status" },
+        ...documentCategories.map((category) => ({ id: toSectionId("documents", category), label: category })),
+        { id: "documents-uploads", label: "Aktuelle Uploads" },
+      ],
+      evidence: [
+        { id: "evidence-overview", label: "Einordnung" },
+        { id: "evidence-summary", label: "Übersicht" },
+        { id: "evidence-matrix", label: "Matrix" },
+      ],
+      resources: [{ id: "resources-overview", label: "Übersicht" }, ...glossaryCategories.map((category) => ({ id: toSectionId("resources", category), label: category }))],
+      "ask-me": [
+        { id: "ask-me-overview", label: "Einordnung" },
+        { id: "ask-me-chat", label: "Chat" },
+      ],
+    };
+  }, [appState]);
+
+  const handleNavigate = (view: ViewKey, sectionId?: string) => {
+    setCurrentView(view);
+    setActiveSectionId(sectionId ?? null);
+  };
 
   const handleSelectLegalForm = async () => {
     setIsSelectingLegalForm(true);
     setError(null);
     try {
-      const nextState = await selectLegalForm("UG haftungsbeschränkt");
+      const nextState = await selectLegalForm("eingetragener Verein (e.V.)");
       setAppState(nextState);
       setEvidenceMatrix(await fetchEvidenceMatrix());
+      return true;
     } catch (actionError) {
-      setError(actionError instanceof Error ? actionError.message : "UG-Pfad konnte nicht aktiviert werden.");
+      setError(actionError instanceof Error ? actionError.message : "e.V.-Pfad konnte nicht aktiviert werden.");
+      return false;
     } finally {
       setIsSelectingLegalForm(false);
     }
@@ -197,12 +271,12 @@ function App() {
       role: "user",
       text: message,
     };
-    setChatMessages((current) => [...current, userEntry]);
-    setIsChatLoading(true);
+    setAskMeMessages((current) => [...current, userEntry]);
+    setIsAskMeLoading(true);
     setError(null);
     try {
-      const response = await sendChatMessage(message);
-      setChatMessages((current) => [
+      const response = await sendChatMessage(message, "ask-me");
+      setAskMeMessages((current) => [
         ...current,
         {
           id: `assistant-${Date.now()}`,
@@ -214,7 +288,7 @@ function App() {
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Chat-Antwort konnte nicht geladen werden.");
     } finally {
-      setIsChatLoading(false);
+      setIsAskMeLoading(false);
     }
   };
 
@@ -240,14 +314,14 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case "dashboard":
-        return <DashboardView state={appState} onNavigate={setCurrentView} />;
+        return <DashboardView state={appState} onNavigate={handleNavigate} />;
       case "company-type":
         return (
           <CompanyTypeView
             state={appState}
             isSubmitting={isSelectingLegalForm}
             onSelectLegalForm={handleSelectLegalForm}
-            onNavigate={setCurrentView}
+            onNavigate={handleNavigate}
           />
         );
       case "founding":
@@ -272,12 +346,29 @@ function App() {
             onReindex={handleReindex}
           />
         );
+      case "compliance":
+        return (
+          <ComplianceView
+            state={appState}
+            updatingCheckId={updatingCheckId}
+            isUploading={isUploading}
+            lastUploadResult={lastUploadResult}
+            onUpdateCheckStatus={handleUpdateCheckStatus}
+            onUpload={handleUpload}
+          />
+        );
       case "evidence":
         return <EvidenceView evidenceMatrix={evidenceMatrix} />;
       case "resources":
         return <ResourcesView items={appState.knowledge_base} />;
-      case "help":
-        return <HelpView messages={chatMessages} isLoading={isChatLoading} onSend={handleSendChat} />;
+      case "ask-me":
+        return (
+          <AskMeView
+            messages={askMeMessages}
+            isLoading={isAskMeLoading}
+            onSend={handleSendChat}
+          />
+        );
       default:
         return null;
     }
@@ -285,8 +376,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-4 lg:px-6">
-      <div className="mx-auto flex max-w-[1600px] gap-6">
-        <Sidebar currentView={currentView} onNavigate={setCurrentView} />
+      <div className="mx-auto flex max-w-[1600px] items-start gap-6">
+        <Sidebar
+          currentView={currentView}
+          activeSectionId={activeSectionId}
+          sectionsByView={sectionsByView}
+          onNavigate={handleNavigate}
+        />
         <main className="min-w-0 flex-1">
           <Header
             title={currentMeta.title}

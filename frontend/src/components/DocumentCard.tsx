@@ -42,11 +42,10 @@ export function DocumentCard({
         type="button"
         disabled={isAvailable || isSubmitting}
         onClick={onMarkAvailable}
-        className="mt-5 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-navy disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-5 rounded-2xl bg-brand-navy px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-violet disabled:cursor-not-allowed disabled:opacity-50"
       >
         Als vorhanden markieren
       </button>
     </div>
   );
 }
-

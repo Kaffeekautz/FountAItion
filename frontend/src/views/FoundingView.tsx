@@ -1,6 +1,8 @@
 import type { AppState, CheckStatus, DocumentRecord } from "../types";
 import { ChecklistItem } from "../components/ChecklistItem";
+import { CollapsibleSection } from "../components/CollapsibleSection";
 import { DisclaimerBox } from "../components/DisclaimerBox";
+import { toSectionId } from "../utils/sectionIds";
 
 interface FoundingViewProps {
   state: AppState;
@@ -9,14 +11,15 @@ interface FoundingViewProps {
 }
 
 export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: FoundingViewProps) {
-  const groupedChecks = state.checks.reduce<Record<string, typeof state.checks>>((accumulator, check) => {
+  const foundingChecks = state.checks.filter((check) => check.category !== "Laufende Pflichten");
+  const groupedChecks = foundingChecks.reduce<Record<string, typeof foundingChecks>>((accumulator, check) => {
     accumulator[check.category] = [...(accumulator[check.category] ?? []), check];
     return accumulator;
   }, {});
 
-  const doneCount = state.checks.filter((check) => check.status === "done").length;
-  const openCount = state.checks.filter((check) => check.status === "missing" || check.status === "required").length;
-  const reviewCount = state.checks.filter((check) => check.status === "check").length;
+  const doneCount = foundingChecks.filter((check) => check.status === "done").length;
+  const openCount = foundingChecks.filter((check) => check.status === "missing" || check.status === "required").length;
+  const reviewCount = foundingChecks.filter((check) => check.status === "check").length;
   const documentMap = state.documents.reduce<Record<string, DocumentRecord>>((accumulator, document) => {
     accumulator[document.id] = document;
     return accumulator;
@@ -24,13 +27,11 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
 
   return (
     <div className="space-y-6">
-      <section className="panel-section">
-        <p className="muted-label">Gründungscheck</p>
-        <h2 className="mt-2 text-3xl font-semibold text-slate-900">UG-Gründungscheck</h2>
-        <p className="mt-3 text-sm text-slate-600">
-          Ausgewählter POC-Pfad: {state.founder_case.selectedLegalForm ?? "Noch nicht ausgewählt"}
+      <CollapsibleSection id="founding-overview" label="Gründungscheck" title="e.V.-Gründungscheck" defaultOpen={false}>
+        <p className="text-sm text-slate-600">
+          Ausgewählter Pilot-Pfad: {state.founder_case.selectedLegalForm ?? "Noch nicht ausgewählt"}
         </p>
-      </section>
+      </CollapsibleSection>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="panel-section">
@@ -43,15 +44,13 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
         </div>
         <div className="panel-section">
           <p className="muted-label">Zu prüfen</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600">{reviewCount}</p>
+          <p className="mt-2 text-3xl font-bold text-brand-violet">{reviewCount}</p>
         </div>
       </div>
 
       {Object.entries(groupedChecks).map(([category, checks]) => (
-        <section key={category} className="panel-section">
-          <p className="muted-label">Kategorie</p>
-          <h3 className="mt-2 text-2xl font-semibold text-slate-900">{category}</h3>
-          <div className="mt-6 space-y-4">
+        <CollapsibleSection key={category} id={toSectionId("founding", category)} label="Kategorie" title={category} defaultOpen={false}>
+          <div className="space-y-4">
             {checks.map((check) => (
               <ChecklistItem
                 key={check.id}
@@ -65,11 +64,10 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
               />
             ))}
           </div>
-        </section>
+        </CollapsibleSection>
       ))}
 
       <DisclaimerBox text={state.disclaimer} />
     </div>
   );
 }
-
