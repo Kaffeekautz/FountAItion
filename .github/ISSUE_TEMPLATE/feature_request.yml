@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest a new capability or improvement for FoundAItion
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user or business problem should this address?
+      placeholder: As a founder, I want ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should be added or changed?
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Primary audience
+      options:
+        - Founder / startup team
+        - Advisor / tax consultant
+        - Incubator / accelerator
+        - Internal product / engineering
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Guardrails
+      options:
+        - label: This should stay within FoundAItion's constrained, non-legal-advice product scope
+        - label: This may affect document processing, evidence mapping, or the help chat
+  - type: textarea
+    id: success
+    attributes:
+      label: Success criteria
+      description: How would we know the feature is done and useful?
