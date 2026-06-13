@@ -1,0 +1,21 @@
+# Python
+backend/.venv/
+backend/app/__pycache__/
+backend/**/*.pyc
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Runtime data
+backend/data/uploads/
+/tmp/
+
+# Editor / OS
+.DS_Store
+
+# Local one-off workspace artifacts
+/Impressum.txt
+/unnamed.jpg
+/01652bab-75b2-4212-9fca-f888970c5e4f.jpeg
+/fd2b9eb7-f8f4-4145-9f9f-eeab7f34f496.jpeg

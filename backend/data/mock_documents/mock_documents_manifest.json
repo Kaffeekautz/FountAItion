@@ -1,0 +1,67 @@
+{
+  "generated_in": "/home/kaffeekautz/Coding/FoundAItion/backend/data/mock_documents",
+  "documents": [
+    {
+      "filename": "gruenderprofil_demo.pdf",
+      "document_type": "Gründer:innenprofil",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "unternehmensprofil_demo.pdf",
+      "document_type": "Unternehmensprofil",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "gesellschaftsvertrag_demo.pdf",
+      "document_type": "Gesellschaftsvertrag",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "kapitaluebersicht.xlsx",
+      "document_type": "Kapitalübersicht",
+      "expected_extraction_method": "filename_fallback"
+    },
+    {
+      "filename": "geschaeftsadresse_nachweis_scan.png",
+      "document_type": "Geschäftsadresse-Nachweis",
+      "expected_extraction_method": "ocr"
+    },
+    {
+      "filename": "gewerbeanmeldung_test.pdf",
+      "document_type": "Gewerbeanmeldung",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "steuerdaten_finanzamt.pdf",
+      "document_type": "Steuerdaten",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "impressum_demo.pdf",
+      "document_type": "Impressum",
+      "expected_extraction_method": "pdf_text"
+    },
+    {
+      "filename": "datenschutz_basischeck_scan.tiff",
+      "document_type": "Datenschutz-Basischeck",
+      "expected_extraction_method": "ocr"
+    },
+    {
+      "filename": "ai_use_case_steckbrief.docx",
+      "document_type": "AI-Use-Case-Steckbrief",
+      "expected_extraction_method": "filename_fallback"
+    },
+    {
+      "filename": "impressum_scan_only.pdf",
+      "document_type": "Impressum",
+      "expected_extraction_method": "ocr",
+      "notes": "Bildbasiertes PDF zum Test des PDF-OCR-Pfads."
+    }
+  ],
+  "notes": [
+    "PDF-Dateien mit Text testen den pdf_text-Pfad.",
+    "PNG/TIFF-Dateien testen OCR auf Bilddateien.",
+    "Das bildbasierte PDF testet den OCR-Fallback für PDFs mit wenig eingebettetem Text.",
+    "DOCX und XLSX testen den filename_fallback für noch nicht voll unterstützte Office-Dateien."
+  ]
+}
