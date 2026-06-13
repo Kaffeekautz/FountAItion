@@ -145,9 +145,6 @@ function App() {
       return {};
     }
 
-    const foundingCategories = Array.from(
-      new Set(appState.checks.filter((check) => check.category !== "Laufende Pflichten").map((check) => check.category)),
-    );
     const documentCategories = Array.from(new Set(appState.document_templates.map((template) => template.category)));
     const glossaryCategories = Array.from(new Set(appState.knowledge_base.map((item) => item.category)));
 
@@ -159,7 +156,13 @@ function App() {
         { id: "company-type-result", label: "Auswertung" },
         { id: "company-type-activation", label: "Aktivierung" },
       ],
-      founding: [{ id: "founding-overview", label: "Übersicht" }, ...foundingCategories.map((category) => ({ id: toSectionId("founding", category), label: category }))],
+      founding: [
+        { id: "founding-overview", label: "Übersicht" },
+        { id: "founding-purpose", label: "Verbreitung & Konzept" },
+        { id: "founding-founders-meeting", label: "Gründerversammlung" },
+        { id: "founding-notary", label: "Notartermin" },
+        { id: "founding-gemeinnuetzigkeit", label: "Gemeinnützigkeit" },
+      ],
       compliance: [
         { id: "compliance-overview", label: "Übersicht" },
         { id: "compliance-finanzen", label: "Finanzen" },

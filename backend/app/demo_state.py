@@ -27,7 +27,7 @@ def build_demo_state() -> AppState:
     checks = [
         FoundingCheck(
             id="association_purpose",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             title="Vereinszweck definieren",
             description="Der e.V.-Zweck muss ideell und nicht auf einen wirtschaftlichen Geschäftsbetrieb ausgerichtet sein.",
             status="required",
@@ -37,7 +37,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="founding_members",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             title="Mindestens sieben Gründungsmitglieder sichern",
             description="Für die Eintragung zum e.V. sollen mindestens sieben Mitglieder an der Gründung beteiligt sein.",
             status="required",
@@ -47,7 +47,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="association_name",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             title="Vereinsnamen prüfen und festlegen",
             description="Der Vereinsname muss unterscheidbar sein und in der Satzung geführt werden.",
             status="missing",
@@ -57,7 +57,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="association_seat",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             title="Vereinssitz bestimmen",
             description="Der Sitz des Vereins bestimmt unter anderem das zuständige Registergericht.",
             status="missing",
@@ -67,7 +67,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="nonprofit_strategy",
-            category="Vorbereitung & Konzept",
+            category="Satzung",
             title="Gemeinnützigkeit entscheiden",
             description="Prüfe, ob der Verein die Anforderungen an eine spätere Gemeinnützigkeit erfüllen soll.",
             status="check",
@@ -77,7 +77,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="legal_form_path",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             title="POC-Pfad für den e.V. aktivieren",
             description="Dokumentiert, dass der Pilot aktuell auf den eingetragenen Verein ausgerichtet ist.",
             status="check",
@@ -127,7 +127,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="nonprofit_clauses",
-            category="Satzung",
+            category="Gemeinnützigkeit",
             title="Gemeinnützigkeitsklauseln sauber einbauen",
             description="Bei geplanter Gemeinnützigkeit müssen Selbstlosigkeit, Ausschließlichkeit, Unmittelbarkeit und Vermögensbindung sauber geregelt werden.",
             status="missing",
@@ -167,7 +167,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="registry_application",
-            category="Vereinsregister",
+            category="Notartermin",
             title="Anmeldung zum Vereinsregister vorbereiten",
             description="Der Vorstand meldet den Verein beim zuständigen Amtsgericht an und reicht die erforderlichen Unterlagen ein.",
             status="missing",
@@ -177,7 +177,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="notarization",
-            category="Vereinsregister",
+            category="Notartermin",
             title="Notarielle Beglaubigung der Anmeldung einholen",
             description="Die Unterschriften des Vorstands unter der Registeranmeldung müssen notariell beglaubigt werden.",
             status="missing",
@@ -187,7 +187,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="tax_eligibility_request",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             title="Feststellung der Satzungsmäßigkeit beantragen",
             description="Bei geplanter Gemeinnützigkeit sollte früh der Antrag auf Feststellung der Satzungsmäßigkeit gestellt werden.",
             status="check",
@@ -197,7 +197,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="bookkeeping_setup",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             title="Buchhaltung und Aufzeichnungen aufsetzen",
             description="Einnahmen, Ausgaben und die tatsächliche Geschäftsführung sollten von Beginn an ordnungsgemäß dokumentiert werden.",
             status="check",
@@ -207,7 +207,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="bank_account",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             title="Vereinskonto eröffnen",
             description="Nach Registereintragung sollte ein Vereinskonto für den operativen Zahlungsverkehr eingerichtet werden.",
             status="check",
@@ -271,7 +271,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-purpose",
             title="Vereinszweckbeschreibung",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             description="Beschreibt den ideellen Vereinszweck und grenzt ihn von wirtschaftlichen Tätigkeiten ab.",
             document_type="Vereinszweckbeschreibung",
             template_type="worksheet",
@@ -279,7 +279,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-members",
             title="Gründungsmitgliederliste",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             description="Hält die mindestens sieben Gründungsmitglieder strukturiert fest.",
             document_type="Gründungsmitgliederliste",
             template_type="checklist",
@@ -287,7 +287,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-name-check",
             title="Namensprüfung",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             description="Dokumentiert die Prüfung, ob der Vereinsname im Registerumfeld unterscheidbar ist.",
             document_type="Namensprüfung",
             template_type="checklist",
@@ -295,7 +295,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-seat",
             title="Vereinssitz-Nachweis",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             description="Beschreibt den geplanten Sitz und die zuständige Registergericht-Zuordnung.",
             document_type="Vereinssitz-Nachweis",
             template_type="worksheet",
@@ -303,7 +303,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-nonprofit",
             title="Gemeinnützigkeitskonzept",
-            category="Vorbereitung & Konzept",
+            category="Gemeinnützigkeit",
             description="Strukturiert, ob und wie die Gemeinnützigkeit von Anfang an verfolgt werden soll.",
             document_type="Gemeinnützigkeitskonzept",
             template_type="worksheet",
@@ -343,7 +343,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-registry",
             title="Vereinsregister-Anmeldung",
-            category="Vereinsregister",
+            category="Notartermin",
             description="Bereitet die Registeranmeldung beim zuständigen Amtsgericht vor.",
             document_type="Vereinsregister-Anmeldung",
             template_type="checklist",
@@ -351,7 +351,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-notary",
             title="Notarielle Beglaubigung",
-            category="Vereinsregister",
+            category="Notartermin",
             description="Dokumentiert die notarielle Beglaubigung der Anmeldung durch den Vorstand.",
             document_type="Notarielle Beglaubigung",
             template_type="evidence",
@@ -359,7 +359,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-tax-status",
             title="Antrag Satzungsmäßigkeit",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             description="Unterlage für die Feststellung der Satzungsmäßigkeit beim Finanzamt.",
             document_type="Antrag Satzungsmäßigkeit",
             template_type="checklist",
@@ -367,7 +367,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-bookkeeping",
             title="Buchhaltungs-Setup",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             description="Beschreibt Buchhaltung, Aufzeichnungen und Mittelverwendungslogik des Vereins.",
             document_type="Buchhaltungs-Setup",
             template_type="worksheet",
@@ -375,7 +375,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-bank-account",
             title="Vereinskonto-Nachweis",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             description="Nachweis oder Notiz zur Eröffnung des Vereinskonto-Setups.",
             document_type="Vereinskonto-Nachweis",
             template_type="evidence",
@@ -395,7 +395,7 @@ def build_demo_state() -> AppState:
         ),
         KnowledgeItem(
             term="Vereinszweck",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             explanation="Der Vereinszweck beschreibt, wofür der Verein da ist und was er inhaltlich erreichen möchte.",
         ),
         KnowledgeItem(
@@ -430,42 +430,42 @@ def build_demo_state() -> AppState:
         ),
         KnowledgeItem(
             term="Mitgliedsbeitrag",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             explanation="Der Mitgliedsbeitrag ist der regelmäßige Betrag, den Mitglieder an den Verein zahlen.",
         ),
         KnowledgeItem(
             term="Vereinsregister",
-            category="Vereinsregister",
+            category="Notartermin",
             explanation="Das Vereinsregister ist das offizielle Register, in dem eingetragene Vereine und wichtige Änderungen vermerkt werden.",
         ),
         KnowledgeItem(
             term="Registergericht",
-            category="Vereinsregister",
+            category="Notartermin",
             explanation="Das Registergericht ist das zuständige Amtsgericht, das über die Eintragung des Vereins entscheidet.",
         ),
         KnowledgeItem(
             term="Vereinssitz",
-            category="Vorbereitung & Konzept",
+            category="Verbreitung & Konzept",
             explanation="Der Vereinssitz ist der offizielle Ort des Vereins und bestimmt meist auch das zuständige Registergericht.",
         ),
         KnowledgeItem(
             term="Gemeinnützigkeit",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             explanation="Gemeinnützigkeit bedeutet, dass der Verein dem Gemeinwohl dient und dadurch steuerliche Vorteile bekommen kann.",
         ),
         KnowledgeItem(
             term="Vermögensbindung",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             explanation="Vermögensbindung heißt, dass das Vereinsvermögen bei Auflösung nicht privat verteilt werden darf, wenn der Verein gemeinnützig ist.",
         ),
         KnowledgeItem(
             term="Satzungsmäßigkeit",
-            category="Gemeinnützigkeit & Finanzen",
+            category="Gemeinnützigkeit",
             explanation="Satzungsmäßigkeit bedeutet, dass die Satzung die formalen Anforderungen erfüllt, etwa für eine mögliche Gemeinnützigkeit.",
         ),
         KnowledgeItem(
             term="Notarielle Beglaubigung",
-            category="Vereinsregister",
+            category="Notartermin",
             explanation="Die notarielle Beglaubigung bestätigt offiziell die Unterschriften unter der Registeranmeldung.",
         ),
         KnowledgeItem(

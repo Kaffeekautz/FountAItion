@@ -391,13 +391,6 @@ export function CompanyTypeView({ state, isSubmitting, onSelectLegalForm, onNavi
                 Dieser Pilot bildet beispielhaft den Gründungspfad eines eingetragenen Vereins (e.V.) ab. Weitere Rechtsformen
                 können später ergänzt werden.
               </p>
-              <button
-                type="button"
-                onClick={() => onNavigate("founding")}
-                className="mt-4 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-              >
-                Zum Gründungscheck
-              </button>
             </div>
           ) : null}
         </section>
