@@ -2,20 +2,39 @@
 backend/.venv/
 backend/app/__pycache__/
 backend/**/*.pyc
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
+npm-debug.log*
 
 # Runtime data
 backend/data/uploads/
 /tmp/
 
+# Environment files
+.env
+.env.*
+!.env.example
+
 # Editor / OS
 .DS_Store
+.idea/
+.vscode/
 
 # Local one-off workspace artifacts
 /Impressum.txt
 /unnamed.jpg
 /01652bab-75b2-4212-9fca-f888970c5e4f.jpeg
 /fd2b9eb7-f8f4-4145-9f9f-eeab7f34f496.jpeg
+
+# Misc logs
+*.log
