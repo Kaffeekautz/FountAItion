@@ -11,7 +11,7 @@ import type {
 const browserHost =
   typeof window !== "undefined" && window.location.hostname ? window.location.hostname : "localhost";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? `http://${browserHost}:8000`;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? `http://${browserHost}:8000` : "");
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, init);
