@@ -7,10 +7,10 @@ services:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-nomic-embed-text}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - foundaition_data:/app/data
+    expose:
+      - "8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

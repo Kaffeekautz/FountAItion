@@ -53,7 +53,6 @@ Die Standardwerte sind:
 
 ```env
 FRONTEND_PORT=8080
-BACKEND_PORT=8000
 OLLAMA_BASE_URL=http://host.docker.internal:11434
 OLLAMA_EMBED_MODEL=nomic-embed-text
 OLLAMA_MODEL=llama3.1
@@ -78,11 +77,22 @@ docker compose up --build -d
 Nach dem Start ist FoundAItion erreichbar unter:
 
 - **Frontend:** <http://localhost:8080>
-- **Backend API:** <http://localhost:8000>
-- **Backend Health:** <http://localhost:8000/health>
-- **FastAPI Docs:** <http://localhost:8000/docs>
+- **Backend API über Nginx:** <http://localhost:8080/api/state>
+- **Backend Health über Nginx:** <http://localhost:8080/health>
+- **FastAPI Docs über Nginx:** <http://localhost:8080/docs>
 
 Wenn ihr Docker auf einem anderen Rechner oder Server gestartet habt, ersetzt `localhost` einfach durch dessen IP oder Hostnamen.
+
+### 6. Docker parallel zur bereits laufenden lokalen Instanz starten
+
+Wenn auf eurem Rechner bereits eine lokale FoundAItion-Instanz läuft, bleibt diese weiterhin erreichbar.  
+Die Docker-Variante blockiert den Host-Port `8000` bewusst **nicht** mehr. Sie veröffentlicht standardmäßig nur das Frontend auf Port `8080`.
+
+Falls `8080` bei euch schon belegt ist, setzt einfach vor dem Start einen anderen Frontend-Port:
+
+```bash
+FRONTEND_PORT=8081 docker compose up --build -d
+```
 
 ---
 
@@ -101,6 +111,7 @@ Docker Compose erstellt zwei Container:
 - startet die FastAPI-Anwendung
 - enthält Python, die Backend-Abhängigkeiten und **Tesseract OCR**
 - verarbeitet Uploads, OCR, Klassifikation und RAG
+- ist nur **intern** für den Frontend-Container freigegeben und muss deshalb keinen Host-Port belegen
 
 ---
 
