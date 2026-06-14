@@ -27,7 +27,7 @@ def build_demo_state() -> AppState:
     checks = [
         FoundingCheck(
             id="association_purpose",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             title="Vereinszweck definieren",
             description="Der e.V.-Zweck muss ideell und nicht auf einen wirtschaftlichen Geschäftsbetrieb ausgerichtet sein.",
             status="required",
@@ -37,7 +37,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="founding_members",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             title="Mindestens sieben Gründungsmitglieder sichern",
             description="Für die Eintragung zum e.V. sollen mindestens sieben Mitglieder an der Gründung beteiligt sein.",
             status="required",
@@ -47,7 +47,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="association_name",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             title="Vereinsnamen prüfen und festlegen",
             description="Der Vereinsname muss unterscheidbar sein und in der Satzung geführt werden.",
             status="missing",
@@ -57,7 +57,7 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="association_seat",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             title="Vereinssitz bestimmen",
             description="Der Sitz des Vereins bestimmt unter anderem das zuständige Registergericht.",
             status="missing",
@@ -77,53 +77,13 @@ def build_demo_state() -> AppState:
         ),
         FoundingCheck(
             id="legal_form_path",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             title="POC-Pfad für den e.V. aktivieren",
             description="Dokumentiert, dass der Pilot aktuell auf den eingetragenen Verein ausgerichtet ist.",
             status="check",
             required_document_types=[],
             matched_document_ids=[],
             explanation="Wird gesetzt, sobald der e.V.-Pilotpfad in FoundAItion aktiviert wird.",
-        ),
-        FoundingCheck(
-            id="statute_core",
-            category="Satzung",
-            title="Mindestinhalt der Satzung ausformulieren",
-            description="Die Satzung muss Zweck, Name, Sitz und den Eintragungswillen enthalten.",
-            status="missing",
-            required_document_types=["Vereinssatzung"],
-            matched_document_ids=[],
-            explanation="Dieser Mindestinhalt ist für die Registeranmeldung zwingend und sollte als sauberer Satzungsentwurf vorliegen.",
-        ),
-        FoundingCheck(
-            id="statute_membership",
-            category="Satzung",
-            title="Mitgliedschaft, Ein- und Austritt regeln",
-            description="Die Satzung soll Regeln zu Eintritt, Austritt und Beiträgen enthalten.",
-            status="missing",
-            required_document_types=["Vereinssatzung"],
-            matched_document_ids=[],
-            explanation="Klare Mitgliedschaftsregeln vermeiden spätere Konflikte bei Austritt, Ausschluss und Beitragspflichten.",
-        ),
-        FoundingCheck(
-            id="statute_board",
-            category="Satzung",
-            title="Vorstand und Vertretung klar regeln",
-            description="Die Satzung sollte Zahl, Bestellung und Vertretungsbefugnis des Vorstands eindeutig bestimmen.",
-            status="missing",
-            required_document_types=["Vereinssatzung"],
-            matched_document_ids=[],
-            explanation="Gerade Vertretungsregelungen und Abberufungsmechanismen sollten vor der Gründung präzise feststehen.",
-        ),
-        FoundingCheck(
-            id="statute_meeting",
-            category="Satzung",
-            title="Mitgliederversammlung und Beschlüsse regeln",
-            description="Einberufung, Beschlussfassung und Protokollierung der Mitgliederversammlung sollten in der Satzung beschrieben sein.",
-            status="missing",
-            required_document_types=["Vereinssatzung"],
-            matched_document_ids=[],
-            explanation="Wenn hybride oder virtuelle Versammlungen gewünscht sind, sollte das schon in der Satzung abgedeckt werden.",
         ),
         FoundingCheck(
             id="nonprofit_clauses",
@@ -271,7 +231,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-purpose",
             title="Vereinszweckbeschreibung",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             description="Beschreibt den ideellen Vereinszweck und grenzt ihn von wirtschaftlichen Tätigkeiten ab.",
             document_type="Vereinszweckbeschreibung",
             template_type="worksheet",
@@ -279,7 +239,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-members",
             title="Gründungsmitgliederliste",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             description="Hält die mindestens sieben Gründungsmitglieder strukturiert fest.",
             document_type="Gründungsmitgliederliste",
             template_type="checklist",
@@ -287,7 +247,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-name-check",
             title="Namensprüfung",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             description="Dokumentiert die Prüfung, ob der Vereinsname im Registerumfeld unterscheidbar ist.",
             document_type="Namensprüfung",
             template_type="checklist",
@@ -295,7 +255,7 @@ def build_demo_state() -> AppState:
         DocumentTemplate(
             id="template-seat",
             title="Vereinssitz-Nachweis",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             description="Beschreibt den geplanten Sitz und die zuständige Registergericht-Zuordnung.",
             document_type="Vereinssitz-Nachweis",
             template_type="worksheet",
@@ -395,7 +355,7 @@ def build_demo_state() -> AppState:
         ),
         KnowledgeItem(
             term="Vereinszweck",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             explanation="Der Vereinszweck beschreibt, wofür der Verein da ist und was er inhaltlich erreichen möchte.",
         ),
         KnowledgeItem(
@@ -445,7 +405,7 @@ def build_demo_state() -> AppState:
         ),
         KnowledgeItem(
             term="Vereinssitz",
-            category="Verbreitung & Konzept",
+            category="Vorbereitung & Konzept",
             explanation="Der Vereinssitz ist der offizielle Ort des Vereins und bestimmt meist auch das zuständige Registergericht.",
         ),
         KnowledgeItem(

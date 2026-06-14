@@ -158,7 +158,7 @@ function App() {
       ],
       founding: [
         { id: "founding-overview", label: "Übersicht" },
-        { id: "founding-purpose", label: "Verbreitung & Konzept" },
+        { id: "founding-purpose", label: "Vorbereitung & Konzept" },
         { id: "founding-founders-meeting", label: "Gründerversammlung" },
         { id: "founding-notary", label: "Notartermin" },
         { id: "founding-gemeinnuetzigkeit", label: "Gemeinnützigkeit" },

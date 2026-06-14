@@ -7,6 +7,7 @@ interface ChecklistItemProps {
   isUpdating: boolean;
   onMarkDone: () => void;
   onReopen: () => void;
+  showActions?: boolean;
 }
 
 export function ChecklistItem({
@@ -15,6 +16,7 @@ export function ChecklistItem({
   isUpdating,
   onMarkDone,
   onReopen,
+  showActions = true,
 }: ChecklistItemProps) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5">
@@ -27,24 +29,26 @@ export function ChecklistItem({
           <p className="mt-3 text-sm leading-6 text-slate-600">{check.description}</p>
           <p className="mt-3 text-sm text-slate-500">{check.explanation}</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={isUpdating}
-            onClick={onMarkDone}
-            className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Als erledigt markieren
-          </button>
-          <button
-            type="button"
-            disabled={isUpdating}
-            onClick={onReopen}
-            className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Wieder öffnen
-          </button>
-        </div>
+        {showActions ? (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={onMarkDone}
+              className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Als erledigt markieren
+            </button>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={onReopen}
+              className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Wieder öffnen
+            </button>
+          </div>
+        ) : null}
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl bg-slate-50 p-4">
@@ -79,4 +83,3 @@ export function ChecklistItem({
     </div>
   );
 }
-

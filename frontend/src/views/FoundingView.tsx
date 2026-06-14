@@ -91,13 +91,7 @@ function FoundingTodoList({
 }
 
 export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: FoundingViewProps) {
-  const hiddenFoundingCheckIds = new Set([
-    "nonprofit_strategy",
-    "statute_core",
-    "statute_board",
-    "statute_meeting",
-    "nonprofit_clauses",
-  ]);
+  const hiddenFoundingCheckIds = new Set(["nonprofit_strategy"]);
   const foundingChecks = state.checks.filter(
     (check) => check.category !== "Laufende Pflichten" && !hiddenFoundingCheckIds.has(check.id),
   );
@@ -158,6 +152,7 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
         isUpdating={updatingCheckId === check.id}
         onMarkDone={() => onUpdateCheckStatus(check.id, "done")}
         onReopen={() => onUpdateCheckStatus(check.id, check.required_document_types.length > 0 ? "missing" : "check")}
+        showActions={false}
       />
     );
   };
@@ -185,7 +180,7 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
         </div>
       </div>
 
-      <CollapsibleSection id="founding-purpose" label="Kategorie" title="Verbreitung & Konzept" defaultOpen={false}>
+      <CollapsibleSection id="founding-purpose" label="Kategorie" title="Vorbereitung & Konzept" defaultOpen={false}>
         <div className="space-y-5">
           <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-5 text-sm leading-6 text-emerald-950">
             Die folgenden Angaben werden zusammengeführt, damit daraus direkt die Satzung generiert werden kann. Die weiteren
@@ -343,18 +338,21 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
             </FoundingPrompt>
           </div>
 
-          <div className="space-y-4">
-            {statuteChecks.map((check) => (
-              <ChecklistItem
-                key={check.id}
-                check={check}
-                matchedDocuments={check.matched_document_ids.map((id) => documentMap[id]).filter(Boolean)}
-                isUpdating={updatingCheckId === check.id}
-                onMarkDone={() => onUpdateCheckStatus(check.id, "done")}
-                onReopen={() => onUpdateCheckStatus(check.id, check.required_document_types.length > 0 ? "missing" : "check")}
-              />
-            ))}
-          </div>
+          {statuteChecks.length > 0 ? (
+            <div className="space-y-4">
+              {statuteChecks.map((check) => (
+                <ChecklistItem
+                  key={check.id}
+                  check={check}
+                  matchedDocuments={check.matched_document_ids.map((id) => documentMap[id]).filter(Boolean)}
+                  isUpdating={updatingCheckId === check.id}
+                  onMarkDone={() => onUpdateCheckStatus(check.id, "done")}
+                  onReopen={() => onUpdateCheckStatus(check.id, check.required_document_types.length > 0 ? "missing" : "check")}
+                  showActions={false}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </CollapsibleSection>
 
@@ -391,6 +389,7 @@ export function FoundingView({ state, updatingCheckId, onUpdateCheckStatus }: Fo
                 isUpdating={updatingCheckId === check.id}
                 onMarkDone={() => onUpdateCheckStatus(check.id, "done")}
                 onReopen={() => onUpdateCheckStatus(check.id, check.required_document_types.length > 0 ? "missing" : "check")}
+                showActions={false}
               />
             ))}
         </div>
