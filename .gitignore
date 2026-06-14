@@ -18,6 +18,7 @@ npm-debug.log*
 
 # Runtime data
 backend/data/uploads/
+backend/data/vector_store.json
 /tmp/
 
 # Environment files
@@ -31,6 +32,7 @@ backend/data/uploads/
 .vscode/
 
 # Local one-off workspace artifacts
+/Checkliste.odt
 /Impressum.txt
 /unnamed.jpg
 /01652bab-75b2-4212-9fca-f888970c5e4f.jpeg
@@ -38,3 +40,6 @@ backend/data/uploads/
 
 # Misc logs
 *.log
+
+# Local office lock files
+.~lock.*

@@ -33,6 +33,26 @@ Installiert auf dem Zielrechner:
 Auf macOS und Windows ist das in der Regel über **Docker Desktop** am einfachsten.  
 Auf Ubuntu/Linux könnt ihr **Docker Engine** plus **Compose Plugin** verwenden.
 
+### Ubuntu-Hinweis zu Paketnamen
+
+Je nach Ubuntu-Version unterscheiden sich die Paketnamen:
+
+- über das **Ubuntu-Repository** oft: `docker.io` und `docker-compose-v2`
+- über das **offizielle Docker-Repository** oft: `docker-ce`, `docker-ce-cli` und `docker-compose-plugin`
+
+Auf dem hier verwendeten Ubuntu-System war **`docker-compose-v2`** verfügbar, **`docker-compose-plugin`** dagegen nicht.
+
+Ein typischer Ubuntu-Installationsbefehl ist daher:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y docker.io docker-compose-v2
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+```
+
+Danach einfach **ein neues Terminal öffnen** oder sich einmal neu anmelden, damit die neue `docker`-Gruppe aktiv ist.
+
 ### 2. Projekt holen
 
 ```bash
